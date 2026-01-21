@@ -3,22 +3,22 @@ package handler
 import (
 	"net/http"
 
-	"github.com/alexnesterov/employees-api/internal/models"
+	"github.com/alexnesterov/employees-api/internal/model"
 	"github.com/gin-gonic/gin"
 )
 
 type DepartmentHandler struct {
-	repo models.DepartmentRepo
+	repo model.DepartmentRepo
 }
 
-func NewDepartmentHandler(repo models.DepartmentRepo) *DepartmentHandler {
+func NewDepartmentHandler(repo model.DepartmentRepo) *DepartmentHandler {
 	return &DepartmentHandler{
 		repo: repo,
 	}
 }
 
 func (h *DepartmentHandler) CreateDepartment(c *gin.Context) {
-	var department models.Department
+	var department model.Department
 
 	if err := c.ShouldBindJSON(&department); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

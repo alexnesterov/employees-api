@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/employees-api/internal/models"
+	"github.com/alexnesterov/employees-api/internal/model"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -12,13 +12,13 @@ type employeePgRepo struct {
 	db *pgx.Conn
 }
 
-func NewEmployeePgRepo(db *pgx.Conn) models.EmployeeRepo {
+func NewEmployeePgRepo(db *pgx.Conn) model.EmployeeRepo {
 	return &employeePgRepo{
 		db: db,
 	}
 }
 
-func (r *employeePgRepo) Create(e *models.Employee) error {
+func (r *employeePgRepo) Create(e *model.Employee) error {
 	query := `INSERT INTO employees (name, sex, age, salary) VALUES ($1, $2, $3, $4) RETURNING id`
 	params := []any{e.Name, e.Sex, e.Age, e.Salary}
 
@@ -31,7 +31,7 @@ func (r *employeePgRepo) Create(e *models.Employee) error {
 	return nil
 }
 
-func (r *employeePgRepo) List() ([]*models.Employee, error) {
+func (r *employeePgRepo) List() ([]*model.Employee, error) {
 	query := `SELECT id, name, sex, age, salary FROM employees`
 
 	rows, err := r.db.Query(context.Background(), query)
@@ -40,8 +40,8 @@ func (r *employeePgRepo) List() ([]*models.Employee, error) {
 	}
 	defer rows.Close()
 
-	employees, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (*models.Employee, error) {
-		employee := &models.Employee{}
+	employees, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (*model.Employee, error) {
+		employee := &model.Employee{}
 		err := row.Scan(&employee.ID, &employee.Name, &employee.Sex, &employee.Age, &employee.Salary)
 		if err != nil {
 			return nil, err
@@ -52,11 +52,11 @@ func (r *employeePgRepo) List() ([]*models.Employee, error) {
 	return employees, err
 }
 
-func (r *employeePgRepo) Read(id string) (*models.Employee, error) {
+func (r *employeePgRepo) Read(id string) (*model.Employee, error) {
 	query := `SELECT id, name, sex, age, salary FROM employees WHERE id = $1`
 
 	row := r.db.QueryRow(context.Background(), query, id)
-	employee := &models.Employee{}
+	employee := &model.Employee{}
 	err := row.Scan(&employee.ID, &employee.Name, &employee.Sex, &employee.Age, &employee.Salary)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -68,7 +68,7 @@ func (r *employeePgRepo) Read(id string) (*models.Employee, error) {
 	return employee, nil
 }
 
-func (r *employeePgRepo) Update(id string, e models.Employee) error {
+func (r *employeePgRepo) Update(id string, e model.Employee) error {
 	query := `UPDATE employees SET name = $1, sex = $2, age = $3, salary = $4 WHERE id = $5`
 
 	_, err := r.db.Exec(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, id)

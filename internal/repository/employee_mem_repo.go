@@ -5,23 +5,23 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/alexnesterov/employees-api/internal/models"
+	"github.com/alexnesterov/employees-api/internal/model"
 )
 
 type employeeMemRepo struct {
 	counter int
-	data    map[string]models.Employee
+	data    map[string]model.Employee
 	sync.Mutex
 }
 
-func NewEmployeeMemRepo() models.EmployeeRepo {
+func NewEmployeeMemRepo() model.EmployeeRepo {
 	return &employeeMemRepo{
-		data:    make(map[string]models.Employee),
+		data:    make(map[string]model.Employee),
 		counter: 1,
 	}
 }
 
-func (r *employeeMemRepo) Create(e *models.Employee) error {
+func (r *employeeMemRepo) Create(e *model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -32,11 +32,11 @@ func (r *employeeMemRepo) Create(e *models.Employee) error {
 	return nil
 }
 
-func (r *employeeMemRepo) List() ([]*models.Employee, error) {
+func (r *employeeMemRepo) List() ([]*model.Employee, error) {
 	r.Lock()
 	defer r.Unlock()
 
-	listEmployee := make([]*models.Employee, 0)
+	listEmployee := make([]*model.Employee, 0)
 
 	for _, val := range r.data {
 		listEmployee = append(listEmployee, &val)
@@ -45,7 +45,7 @@ func (r *employeeMemRepo) List() ([]*models.Employee, error) {
 	return listEmployee, nil
 }
 
-func (r *employeeMemRepo) Read(id string) (*models.Employee, error) {
+func (r *employeeMemRepo) Read(id string) (*model.Employee, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -57,7 +57,7 @@ func (r *employeeMemRepo) Read(id string) (*models.Employee, error) {
 	return &employee, nil
 }
 
-func (r *employeeMemRepo) Update(id string, e models.Employee) error {
+func (r *employeeMemRepo) Update(id string, e model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 

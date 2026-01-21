@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/alexnesterov/employees-api/internal/models"
+	"github.com/alexnesterov/employees-api/internal/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,17 +13,17 @@ type ErrorResponse struct {
 }
 
 type EmployeeHandler struct {
-	repo models.EmployeeRepo
+	repo model.EmployeeRepo
 }
 
-func NewEmployeeHandler(repo models.EmployeeRepo) *EmployeeHandler {
+func NewEmployeeHandler(repo model.EmployeeRepo) *EmployeeHandler {
 	return &EmployeeHandler{
 		repo: repo,
 	}
 }
 
 func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
-	var employee models.Employee
+	var employee model.Employee
 
 	if err := c.BindJSON(&employee); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
@@ -48,7 +48,7 @@ func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
 	id := c.Param("id")
 
-	var employee models.Employee
+	var employee model.Employee
 
 	if err := c.BindJSON(&employee); err != nil {
 		fmt.Printf("failed to bind employee: %s\n", err.Error())

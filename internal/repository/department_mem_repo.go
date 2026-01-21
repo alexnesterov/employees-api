@@ -5,23 +5,23 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/alexnesterov/employees-api/internal/models"
+	"github.com/alexnesterov/employees-api/internal/model"
 )
 
 type departmentMemRepo struct {
 	counter int
-	data    map[string]*models.Department
+	data    map[string]*model.Department
 	sync.Mutex
 }
 
-func NewDepartmentMemRepo() models.DepartmentRepo {
+func NewDepartmentMemRepo() model.DepartmentRepo {
 	return &departmentMemRepo{
-		data:    make(map[string]*models.Department),
+		data:    make(map[string]*model.Department),
 		counter: 1,
 	}
 }
 
-func (r *departmentMemRepo) Create(d *models.Department) error {
+func (r *departmentMemRepo) Create(d *model.Department) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -34,11 +34,11 @@ func (r *departmentMemRepo) Create(d *models.Department) error {
 	return nil
 }
 
-func (r *departmentMemRepo) List() ([]*models.Department, error) {
+func (r *departmentMemRepo) List() ([]*model.Department, error) {
 	r.Lock()
 	defer r.Unlock()
 
-	departments := make([]*models.Department, 0, len(r.data))
+	departments := make([]*model.Department, 0, len(r.data))
 	for _, dept := range r.data {
 		departments = append(departments, dept)
 	}
@@ -46,7 +46,7 @@ func (r *departmentMemRepo) List() ([]*models.Department, error) {
 	return departments, nil
 }
 
-func (r *departmentMemRepo) Read(code string) (*models.Department, error) {
+func (r *departmentMemRepo) Read(code string) (*model.Department, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -58,7 +58,7 @@ func (r *departmentMemRepo) Read(code string) (*models.Department, error) {
 	return dept, nil
 }
 
-func (r *departmentMemRepo) Update(code string, d models.Department) error {
+func (r *departmentMemRepo) Update(code string, d model.Department) error {
 	r.Lock()
 	defer r.Unlock()
 

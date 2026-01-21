@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/employees-api/internal/models"
+	"github.com/alexnesterov/employees-api/internal/model"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -12,13 +12,13 @@ type departmentPgRepo struct {
 	db *pgx.Conn
 }
 
-func NewDepartmentPgRepo(db *pgx.Conn) models.DepartmentRepo {
+func NewDepartmentPgRepo(db *pgx.Conn) model.DepartmentRepo {
 	return &departmentPgRepo{
 		db: db,
 	}
 }
 
-func (r *departmentPgRepo) Create(dpt *models.Department) error {
+func (r *departmentPgRepo) Create(dpt *model.Department) error {
 	query := `INSERT INTO departments (code, name) VALUES ($1, $2) RETURNING code`
 	params := []any{dpt.Code, dpt.Name}
 
@@ -31,7 +31,7 @@ func (r *departmentPgRepo) Create(dpt *models.Department) error {
 	return nil
 }
 
-func (r *departmentPgRepo) List() ([]*models.Department, error) {
+func (r *departmentPgRepo) List() ([]*model.Department, error) {
 	query := `SELECT code, name FROM departments`
 
 	rows, err := r.db.Query(context.Background(), query)
@@ -40,8 +40,8 @@ func (r *departmentPgRepo) List() ([]*models.Department, error) {
 	}
 	defer rows.Close()
 
-	departments, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (*models.Department, error) {
-		department := &models.Department{}
+	departments, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (*model.Department, error) {
+		department := &model.Department{}
 		err := row.Scan(&department.Code, &department.Name)
 		if err != nil {
 			return nil, err
@@ -52,11 +52,11 @@ func (r *departmentPgRepo) List() ([]*models.Department, error) {
 	return departments, err
 }
 
-func (r *departmentPgRepo) Read(code string) (*models.Department, error) {
+func (r *departmentPgRepo) Read(code string) (*model.Department, error) {
 	query := `SELECT code, name FROM departments WHERE code = $1`
 
 	row := r.db.QueryRow(context.Background(), query, code)
-	department := &models.Department{}
+	department := &model.Department{}
 	err := row.Scan(&department.Code, &department.Name)
 	if err != nil {
 		if err == pgx.ErrNoRows {

@@ -1,4 +1,4 @@
-package models
+package model
 
 type Department struct {
 	Code string `json:"code"`
