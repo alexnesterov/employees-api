@@ -1,4 +1,4 @@
-package memory
+package repository
 
 import (
 	"errors"
@@ -8,20 +8,20 @@ import (
 	"github.com/alexnesterov/employees-api/internal/models"
 )
 
-type DepartmentRepository struct {
+type departmentMemRepo struct {
 	counter int
 	data    map[string]*models.Department
 	sync.Mutex
 }
 
-func NewDepartmentRepository() models.DepartmentRepository {
-	return &DepartmentRepository{
+func NewDepartmentMemRepo() models.DepartmentRepository {
+	return &departmentMemRepo{
 		data:    make(map[string]*models.Department),
 		counter: 1,
 	}
 }
 
-func (r *DepartmentRepository) Create(d *models.Department) error {
+func (r *departmentMemRepo) Create(d *models.Department) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -34,7 +34,7 @@ func (r *DepartmentRepository) Create(d *models.Department) error {
 	return nil
 }
 
-func (r *DepartmentRepository) List() ([]*models.Department, error) {
+func (r *departmentMemRepo) List() ([]*models.Department, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -46,7 +46,7 @@ func (r *DepartmentRepository) List() ([]*models.Department, error) {
 	return departments, nil
 }
 
-func (r *DepartmentRepository) Read(code string) (*models.Department, error) {
+func (r *departmentMemRepo) Read(code string) (*models.Department, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -58,7 +58,7 @@ func (r *DepartmentRepository) Read(code string) (*models.Department, error) {
 	return dept, nil
 }
 
-func (r *DepartmentRepository) Update(code string, d models.Department) error {
+func (r *departmentMemRepo) Update(code string, d models.Department) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -71,7 +71,7 @@ func (r *DepartmentRepository) Update(code string, d models.Department) error {
 	return nil
 }
 
-func (r *DepartmentRepository) Delete(code string) error {
+func (r *departmentMemRepo) Delete(code string) error {
 	r.Lock()
 	defer r.Unlock()
 

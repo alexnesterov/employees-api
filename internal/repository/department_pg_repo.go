@@ -1,4 +1,4 @@
-package postgres
+package repository
 
 import (
 	"context"
@@ -8,17 +8,17 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type DepartmentRepository struct {
+type departmentPgRepo struct {
 	db *pgx.Conn
 }
 
-func NewDepartmentRepository(db *pgx.Conn) models.DepartmentRepository {
-	return &DepartmentRepository{
+func NewDepartmentPgRepo(db *pgx.Conn) models.DepartmentRepository {
+	return &departmentPgRepo{
 		db: db,
 	}
 }
 
-func (r *DepartmentRepository) Create(dpt *models.Department) error {
+func (r *departmentPgRepo) Create(dpt *models.Department) error {
 	query := `INSERT INTO departments (code, name) VALUES ($1, $2) RETURNING code`
 	params := []any{dpt.Code, dpt.Name}
 
@@ -31,7 +31,7 @@ func (r *DepartmentRepository) Create(dpt *models.Department) error {
 	return nil
 }
 
-func (r *DepartmentRepository) List() ([]*models.Department, error) {
+func (r *departmentPgRepo) List() ([]*models.Department, error) {
 	query := `SELECT code, name FROM departments`
 
 	rows, err := r.db.Query(context.Background(), query)
@@ -52,7 +52,7 @@ func (r *DepartmentRepository) List() ([]*models.Department, error) {
 	return departments, err
 }
 
-func (r *DepartmentRepository) Read(code string) (*models.Department, error) {
+func (r *departmentPgRepo) Read(code string) (*models.Department, error) {
 	query := `SELECT code, name FROM departments WHERE code = $1`
 
 	row := r.db.QueryRow(context.Background(), query, code)
@@ -68,11 +68,11 @@ func (r *DepartmentRepository) Read(code string) (*models.Department, error) {
 	return department, nil
 }
 
-func (r *DepartmentRepository) Update(code string, dpt models.Department) error {
+func (r *departmentPgRepo) Update(code string, dpt models.Department) error {
 	return nil
 }
 
-func (r *DepartmentRepository) Delete(code string) error {
+func (r *departmentPgRepo) Delete(code string) error {
 	query := `DELETE FROM departments WHERE code = $1`
 
 	result, err := r.db.Exec(context.Background(), query, code)
