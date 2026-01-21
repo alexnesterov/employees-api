@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: employees_api_postgres
+    image: postgres
+    restart: always
+    volumes:
+      - employees_api_data:/var/lib/postgresql/data/pgdata
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_DB: employees_api_db
+      POSTGRES_USER: employees_api_user
+      POSTGRES_PASSWORD: employees_api_password
+    ports:
+      - '5432:5432'
+    networks:
+      - employees_api_network
+
+  adminer:
+    container_name: employees_api_adminer
+    image: adminer
+    restart: always
+    ports:
+      - '8081:8080'
+    networks:
+      - employees_api_network
+    depends_on:
+      - db
+
+networks:
+  employees_api_network:
+    driver: bridge
+
+volumes:
+  employees_api_data:
