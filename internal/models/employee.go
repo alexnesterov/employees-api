@@ -8,7 +8,7 @@ type Employee struct {
 	Salary int    `json:"salary"`
 }
 
-type EmployeeRepository interface {
+type EmployeeRepo interface {
 	Create(e *Employee) error
 	List() ([]*Employee, error)
 	Read(id string) (*Employee, error)

@@ -5,10 +5,9 @@ type Department struct {
 	Name string `json:"name"`
 }
 
-type DepartmentRepository interface {
+type DepartmentRepo interface {
 	Create(d *Department) error
 	List() ([]*Department, error)
 	Read(code string) (*Department, error)
-	Update(code string, d Department) error
 	Delete(code string) error
 }

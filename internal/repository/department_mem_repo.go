@@ -14,7 +14,7 @@ type departmentMemRepo struct {
 	sync.Mutex
 }
 
-func NewDepartmentMemRepo() models.DepartmentRepository {
+func NewDepartmentMemRepo() models.DepartmentRepo {
 	return &departmentMemRepo{
 		data:    make(map[string]*models.Department),
 		counter: 1,

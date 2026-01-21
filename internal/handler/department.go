@@ -8,10 +8,10 @@ import (
 )
 
 type DepartmentHandler struct {
-	repo models.DepartmentRepository
+	repo models.DepartmentRepo
 }
 
-func NewDepartmentHandler(repo models.DepartmentRepository) *DepartmentHandler {
+func NewDepartmentHandler(repo models.DepartmentRepo) *DepartmentHandler {
 	return &DepartmentHandler{
 		repo: repo,
 	}

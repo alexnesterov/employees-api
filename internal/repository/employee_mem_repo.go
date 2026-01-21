@@ -14,7 +14,7 @@ type employeeMemRepo struct {
 	sync.Mutex
 }
 
-func NewEmployeeMemRepo() models.EmployeeRepository {
+func NewEmployeeMemRepo() models.EmployeeRepo {
 	return &employeeMemRepo{
 		data:    make(map[string]models.Employee),
 		counter: 1,

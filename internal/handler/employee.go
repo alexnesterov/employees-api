@@ -13,10 +13,10 @@ type ErrorResponse struct {
 }
 
 type EmployeeHandler struct {
-	repo models.EmployeeRepository
+	repo models.EmployeeRepo
 }
 
-func NewEmployeeHandler(repo models.EmployeeRepository) *EmployeeHandler {
+func NewEmployeeHandler(repo models.EmployeeRepo) *EmployeeHandler {
 	return &EmployeeHandler{
 		repo: repo,
 	}

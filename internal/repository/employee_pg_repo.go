@@ -8,17 +8,17 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type employeeRepository struct {
+type employeePgRepo struct {
 	db *pgx.Conn
 }
 
-func NewEmployeePgRepo(db *pgx.Conn) models.EmployeeRepository {
-	return &employeeRepository{
+func NewEmployeePgRepo(db *pgx.Conn) models.EmployeeRepo {
+	return &employeePgRepo{
 		db: db,
 	}
 }
 
-func (r *employeeRepository) Create(e *models.Employee) error {
+func (r *employeePgRepo) Create(e *models.Employee) error {
 	query := `INSERT INTO employees (name, sex, age, salary) VALUES ($1, $2, $3, $4) RETURNING id`
 	params := []any{e.Name, e.Sex, e.Age, e.Salary}
 
@@ -31,7 +31,7 @@ func (r *employeeRepository) Create(e *models.Employee) error {
 	return nil
 }
 
-func (r *employeeRepository) List() ([]*models.Employee, error) {
+func (r *employeePgRepo) List() ([]*models.Employee, error) {
 	query := `SELECT id, name, sex, age, salary FROM employees`
 
 	rows, err := r.db.Query(context.Background(), query)
@@ -52,7 +52,7 @@ func (r *employeeRepository) List() ([]*models.Employee, error) {
 	return employees, err
 }
 
-func (r *employeeRepository) Read(id string) (*models.Employee, error) {
+func (r *employeePgRepo) Read(id string) (*models.Employee, error) {
 	query := `SELECT id, name, sex, age, salary FROM employees WHERE id = $1`
 
 	row := r.db.QueryRow(context.Background(), query, id)
@@ -68,7 +68,7 @@ func (r *employeeRepository) Read(id string) (*models.Employee, error) {
 	return employee, nil
 }
 
-func (r *employeeRepository) Update(id string, e models.Employee) error {
+func (r *employeePgRepo) Update(id string, e models.Employee) error {
 	query := `UPDATE employees SET name = $1, sex = $2, age = $3, salary = $4 WHERE id = $5`
 
 	_, err := r.db.Exec(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, id)
@@ -79,7 +79,7 @@ func (r *employeeRepository) Update(id string, e models.Employee) error {
 	return nil
 }
 
-func (r *employeeRepository) Delete(id string) error {
+func (r *employeePgRepo) Delete(id string) error {
 	query := `DELETE FROM employees WHERE id = $1`
 
 	_, err := r.db.Exec(context.Background(), query, id)

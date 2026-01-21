@@ -12,7 +12,7 @@ type departmentPgRepo struct {
 	db *pgx.Conn
 }
 
-func NewDepartmentPgRepo(db *pgx.Conn) models.DepartmentRepository {
+func NewDepartmentPgRepo(db *pgx.Conn) models.DepartmentRepo {
 	return &departmentPgRepo{
 		db: db,
 	}
@@ -66,10 +66,6 @@ func (r *departmentPgRepo) Read(code string) (*models.Department, error) {
 	}
 
 	return department, nil
-}
-
-func (r *departmentPgRepo) Update(code string, dpt models.Department) error {
-	return nil
 }
 
 func (r *departmentPgRepo) Delete(code string) error {
