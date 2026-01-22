@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/alexnesterov/employees-api/internal/model"
+	"github.com/alexnesterov/employees-api/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,12 +14,12 @@ type ErrorResponse struct {
 }
 
 type EmployeeHandler struct {
-	repo model.EmployeeRepo
+	svc *service.EmployeeService
 }
 
-func NewEmployeeHandler(repo model.EmployeeRepo) *EmployeeHandler {
+func NewEmployeeHandler(svc *service.EmployeeService) *EmployeeHandler {
 	return &EmployeeHandler{
-		repo: repo,
+		svc: svc,
 	}
 }
 
@@ -32,7 +33,7 @@ func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 		return
 	}
 
-	err := h.repo.Create(&employee)
+	err := h.svc.CreateEmployee(&employee)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
 			Message: err.Error(),
@@ -58,7 +59,7 @@ func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
 		return
 	}
 
-	err := h.repo.Update(id, employee)
+	err := h.svc.UpdateEmployee(id, employee)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
 			Message: err.Error(),
@@ -74,7 +75,7 @@ func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
 func (h *EmployeeHandler) GetEmployee(c *gin.Context) {
 	id := c.Param("id")
 
-	employee, err := h.repo.Read(id)
+	employee, err := h.svc.ReadEmployee(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),
@@ -86,7 +87,7 @@ func (h *EmployeeHandler) GetEmployee(c *gin.Context) {
 }
 
 func (h *EmployeeHandler) ListEmployee(c *gin.Context) {
-	list, err := h.repo.List()
+	list, err := h.svc.ListEmployees()
 	if err != nil {
 		fmt.Printf("failed to get employee %s\n", err.Error())
 		c.JSON(http.StatusBadRequest, ErrorResponse{
@@ -103,7 +104,7 @@ func (h *EmployeeHandler) ListEmployee(c *gin.Context) {
 func (h *EmployeeHandler) DeleteEmployee(c *gin.Context) {
 	id := c.Param("id")
 
-	h.repo.Delete(id)
+	h.svc.DeleteEmployee(id)
 
 	c.String(http.StatusOK, "employee deleted")
 }

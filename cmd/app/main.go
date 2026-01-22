@@ -7,6 +7,7 @@ import (
 	"github.com/alexnesterov/employees-api/internal/config"
 	"github.com/alexnesterov/employees-api/internal/handler"
 	"github.com/alexnesterov/employees-api/internal/repository"
+	"github.com/alexnesterov/employees-api/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -26,10 +27,11 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	employeeRepo := repository.NewEmployeePgRepo(conn)
-	handlerEmployee := handler.NewEmployeeHandler(employeeRepo)
-
 	router := gin.Default()
+
+	employeeRepo := repository.NewEmployeePgRepo(conn)
+	employeeService := service.NewEmployeeService(employeeRepo)
+	handlerEmployee := handler.NewEmployeeHandler(employeeService)
 
 	router.POST("/employees", handlerEmployee.CreateEmployee)
 	router.GET("/employees", handlerEmployee.ListEmployee)
@@ -38,7 +40,8 @@ func main() {
 	router.DELETE("/employees/:id", handlerEmployee.DeleteEmployee)
 
 	departmentRepo := repository.NewDepartmentPgRepo(conn)
-	departmentHandler := handler.NewDepartmentHandler(departmentRepo)
+	departmentService := service.NewDepartmentService(departmentRepo)
+	departmentHandler := handler.NewDepartmentHandler(departmentService)
 
 	router.POST("/departments", departmentHandler.CreateDepartment)
 	router.GET("/departments", departmentHandler.ListDepartments)

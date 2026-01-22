@@ -4,16 +4,17 @@ import (
 	"net/http"
 
 	"github.com/alexnesterov/employees-api/internal/model"
+	"github.com/alexnesterov/employees-api/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
 type DepartmentHandler struct {
-	repo model.DepartmentRepo
+	svc *service.DepartmentService
 }
 
-func NewDepartmentHandler(repo model.DepartmentRepo) *DepartmentHandler {
+func NewDepartmentHandler(svc *service.DepartmentService) *DepartmentHandler {
 	return &DepartmentHandler{
-		repo: repo,
+		svc: svc,
 	}
 }
 
@@ -28,7 +29,7 @@ func (h *DepartmentHandler) CreateDepartment(c *gin.Context) {
 		return
 	}
 
-	if err := h.repo.Create(&department); err != nil {
+	if err := h.svc.CreateDepartment(&department); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create department",
 			"details": err.Error(),
@@ -43,7 +44,7 @@ func (h *DepartmentHandler) CreateDepartment(c *gin.Context) {
 }
 
 func (h *DepartmentHandler) ListDepartments(c *gin.Context) {
-	list, err := h.repo.List()
+	list, err := h.svc.ListDepartments()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to get departments",
@@ -69,7 +70,7 @@ func (h *DepartmentHandler) ListDepartments(c *gin.Context) {
 func (h *DepartmentHandler) ReadDepartment(c *gin.Context) {
 	id := c.Param("id")
 
-	department, err := h.repo.Read(id)
+	department, err := h.svc.ReadDepartment(id)
 	if err != nil {
 		if err.Error() == "department not found" {
 			c.Status(http.StatusNotFound)
@@ -92,7 +93,7 @@ func (h *DepartmentHandler) ReadDepartment(c *gin.Context) {
 func (h *DepartmentHandler) DeleteDepartment(c *gin.Context) {
 	id := c.Param("id")
 
-	if err := h.repo.Delete(id); err != nil {
+	if err := h.svc.DeleteDepartment(id); err != nil {
 		if err.Error() == "department not found" {
 			c.Status(http.StatusNotFound)
 			return
