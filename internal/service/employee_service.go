@@ -31,3 +31,7 @@ func (s *EmployeeService) UpdateEmployee(id string, e model.Employee) error {
 func (s *EmployeeService) DeleteEmployee(id string) error {
 	return s.repo.Delete(id)
 }
+
+func (s *EmployeeService) UpdateEmployeeDepartment(e *model.Employee) error {
+	return s.repo.UpdateDepartment(e)
+}

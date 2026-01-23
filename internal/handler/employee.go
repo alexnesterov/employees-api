@@ -108,3 +108,29 @@ func (h *EmployeeHandler) DeleteEmployee(c *gin.Context) {
 
 	c.String(http.StatusOK, "employee deleted")
 }
+
+func (h *EmployeeHandler) UpdateEmployeeDepartment(c *gin.Context) {
+	var employee model.Employee
+
+	employee.ID = c.Param("id")
+
+	if err := c.BindJSON(&employee); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	err := h.svc.UpdateEmployeeDepartment(&employee)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]any{
+		"id":              employee.ID,
+		"department_code": employee.DepartmentCode,
+	})
+}

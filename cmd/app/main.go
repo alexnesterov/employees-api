@@ -38,6 +38,7 @@ func main() {
 	router.GET("/employees/:id", handlerEmployee.GetEmployee)
 	router.PUT("/employees/:id", handlerEmployee.UpdateEmployee)
 	router.DELETE("/employees/:id", handlerEmployee.DeleteEmployee)
+	router.PUT("/employees/:id/department", handlerEmployee.UpdateEmployeeDepartment)
 
 	departmentRepo := repository.NewDepartmentPgRepo(conn)
 	departmentService := service.NewDepartmentService(departmentRepo)

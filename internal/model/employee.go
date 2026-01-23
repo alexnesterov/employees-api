@@ -15,4 +15,5 @@ type EmployeeRepo interface {
 	Read(id string) (*Employee, error)
 	Update(id string, e Employee) error
 	Delete(id string) error
+	UpdateDepartment(e *Employee) error
 }

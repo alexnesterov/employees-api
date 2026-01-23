@@ -74,3 +74,12 @@ func (r *employeeMemRepo) Delete(id string) error {
 
 	return nil
 }
+
+func (r *employeeMemRepo) UpdateDepartment(e *model.Employee) error {
+	r.Lock()
+	defer r.Unlock()
+
+	r.data[e.ID] = *e
+
+	return nil
+}

@@ -89,3 +89,18 @@ func (r *employeePgRepo) Delete(id string) error {
 
 	return nil
 }
+
+func (r *employeePgRepo) UpdateDepartment(e *model.Employee) error {
+	query := `UPDATE employees SET department_code = $1 WHERE id = $2`
+
+	result, err := r.db.Exec(context.Background(), query, e.DepartmentCode, e.ID)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return errors.New("employee not found")
+	}
+
+	return nil
+}
