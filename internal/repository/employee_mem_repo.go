@@ -8,20 +8,20 @@ import (
 	"github.com/alexnesterov/employees-api/internal/model"
 )
 
-type employeeMemRepo struct {
+type employeeMemRepository struct {
 	counter int
 	data    map[string]model.Employee
 	sync.Mutex
 }
 
-func NewEmployeeMemRepo() model.EmployeeRepo {
-	return &employeeMemRepo{
+func NewEmployeeMemRepository() model.EmployeeRepository {
+	return &employeeMemRepository{
 		data:    make(map[string]model.Employee),
 		counter: 1,
 	}
 }
 
-func (r *employeeMemRepo) Create(e *model.Employee) error {
+func (r *employeeMemRepository) Create(e *model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -32,7 +32,7 @@ func (r *employeeMemRepo) Create(e *model.Employee) error {
 	return nil
 }
 
-func (r *employeeMemRepo) List() ([]*model.Employee, error) {
+func (r *employeeMemRepository) List() ([]*model.Employee, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -45,7 +45,7 @@ func (r *employeeMemRepo) List() ([]*model.Employee, error) {
 	return listEmployee, nil
 }
 
-func (r *employeeMemRepo) Read(id string) (*model.Employee, error) {
+func (r *employeeMemRepository) Read(id string) (*model.Employee, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -57,7 +57,7 @@ func (r *employeeMemRepo) Read(id string) (*model.Employee, error) {
 	return &employee, nil
 }
 
-func (r *employeeMemRepo) Update(id string, e model.Employee) error {
+func (r *employeeMemRepository) Update(id string, e model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -66,7 +66,7 @@ func (r *employeeMemRepo) Update(id string, e model.Employee) error {
 	return nil
 }
 
-func (r *employeeMemRepo) Delete(id string) error {
+func (r *employeeMemRepository) Delete(id string) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -75,7 +75,7 @@ func (r *employeeMemRepo) Delete(id string) error {
 	return nil
 }
 
-func (r *employeeMemRepo) UpdateDepartment(e *model.Employee) error {
+func (r *employeeMemRepository) UpdateDepartment(e *model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 

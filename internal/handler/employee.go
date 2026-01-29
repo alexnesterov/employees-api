@@ -1,17 +1,13 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/alexnesterov/employees-api/internal/model"
 	"github.com/alexnesterov/employees-api/internal/service"
-	"github.com/gin-gonic/gin"
 )
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
 
 type EmployeeHandler struct {
 	svc *service.EmployeeService
@@ -23,114 +19,60 @@ func NewEmployeeHandler(svc *service.EmployeeService) *EmployeeHandler {
 	}
 }
 
-func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
-	var employee model.Employee
+func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
-	if err := c.BindJSON(&employee); err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	err := h.svc.CreateEmployee(&employee)
+	body, err := io.ReadAll(r.Body)
+	r.Body.Close()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{
-			Message: err.Error(),
-		})
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
 		return
 	}
-
-	c.JSON(http.StatusOK, map[string]any{
-		"id": employee.ID,
-	})
-}
-
-func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
-	id := c.Param("id")
 
 	var employee model.Employee
-
-	if err := c.BindJSON(&employee); err != nil {
-		fmt.Printf("failed to bind employee: %s\n", err.Error())
-		c.JSON(http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
+	if err := json.Unmarshal(body, &employee); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
-	err := h.svc.UpdateEmployee(id, employee)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{
-			Message: err.Error(),
-		})
+	if err := h.svc.CreateEmployee(&employee); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]any{
-		"id": id,
-	})
+	response := map[string]any{
+		"message": "Employee created successfully",
+		"data":    employee,
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
 }
 
-func (h *EmployeeHandler) GetEmployee(c *gin.Context) {
-	id := c.Param("id")
-
-	employee, err := h.svc.ReadEmployee(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, employee)
+func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("employee updated"))
 }
 
-func (h *EmployeeHandler) ListEmployee(c *gin.Context) {
-	list, err := h.svc.ListEmployees()
-	if err != nil {
-		fmt.Printf("failed to get employee %s\n", err.Error())
-		c.JSON(http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	fmt.Println(list)
-
-	c.JSON(http.StatusOK, list)
+func (h *EmployeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("employee"))
 }
 
-func (h *EmployeeHandler) DeleteEmployee(c *gin.Context) {
-	id := c.Param("id")
-
-	h.svc.DeleteEmployee(id)
-
-	c.String(http.StatusOK, "employee deleted")
+func (h *EmployeeHandler) ListEmployee(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("employees"))
 }
 
-func (h *EmployeeHandler) UpdateEmployeeDepartment(c *gin.Context) {
-	var employee model.Employee
+func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("employee deleted"))
+}
 
-	employee.ID = c.Param("id")
-
-	if err := c.BindJSON(&employee); err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	err := h.svc.UpdateEmployeeDepartment(&employee)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, map[string]any{
-		"id":              employee.ID,
-		"department_code": employee.DepartmentCode,
-	})
+func (h *EmployeeHandler) UpdateEmployeeDepartment(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("employee department updated"))
 }

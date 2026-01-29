@@ -3,10 +3,10 @@ package service
 import "github.com/alexnesterov/employees-api/internal/model"
 
 type EmployeeService struct {
-	repo model.EmployeeRepo
+	repo model.EmployeeRepository
 }
 
-func NewEmployeeService(repo model.EmployeeRepo) *EmployeeService {
+func NewEmployeeService(repo model.EmployeeRepository) *EmployeeService {
 	return &EmployeeService{
 		repo: repo,
 	}
