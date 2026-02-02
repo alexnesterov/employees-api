@@ -8,20 +8,20 @@ import (
 	"github.com/alexnesterov/employees-api/internal/model"
 )
 
-type employeeMemRepository struct {
+type MemEmployeeRepository struct {
 	counter int
 	data    map[string]model.Employee
 	sync.Mutex
 }
 
-func NewEmployeeMemRepository() model.EmployeeRepository {
-	return &employeeMemRepository{
+func NewMemEmployeeRepository() *MemEmployeeRepository {
+	return &MemEmployeeRepository{
 		data:    make(map[string]model.Employee),
 		counter: 1,
 	}
 }
 
-func (r *employeeMemRepository) Create(e *model.Employee) error {
+func (r *MemEmployeeRepository) Create(e *model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -32,7 +32,7 @@ func (r *employeeMemRepository) Create(e *model.Employee) error {
 	return nil
 }
 
-func (r *employeeMemRepository) List() ([]*model.Employee, error) {
+func (r *MemEmployeeRepository) List() ([]*model.Employee, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -45,7 +45,7 @@ func (r *employeeMemRepository) List() ([]*model.Employee, error) {
 	return listEmployee, nil
 }
 
-func (r *employeeMemRepository) Read(id string) (*model.Employee, error) {
+func (r *MemEmployeeRepository) Read(id string) (*model.Employee, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -57,7 +57,7 @@ func (r *employeeMemRepository) Read(id string) (*model.Employee, error) {
 	return &employee, nil
 }
 
-func (r *employeeMemRepository) Update(id string, e model.Employee) error {
+func (r *MemEmployeeRepository) Update(id string, e model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -66,7 +66,7 @@ func (r *employeeMemRepository) Update(id string, e model.Employee) error {
 	return nil
 }
 
-func (r *employeeMemRepository) Delete(id string) error {
+func (r *MemEmployeeRepository) Delete(id string) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -75,7 +75,7 @@ func (r *employeeMemRepository) Delete(id string) error {
 	return nil
 }
 
-func (r *employeeMemRepository) UpdateDepartment(e *model.Employee) error {
+func (r *MemEmployeeRepository) UpdateDepartment(e *model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 

@@ -30,7 +30,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	employeeRepository := repository.NewEmployeePgRepository(conn)
+	employeeRepository := repository.NewPgEmployeeRepository(conn)
 	employeeService := service.NewEmployeeService(employeeRepository)
 	employeeHandler := handler.NewEmployeeHandler(employeeService)
 
