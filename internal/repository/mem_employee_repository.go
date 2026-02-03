@@ -2,22 +2,20 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/alexnesterov/employees-api/internal/model"
+	"github.com/google/uuid"
 )
 
 type MemEmployeeRepository struct {
-	counter int
-	data    map[string]model.Employee
+	data map[uuid.UUID]model.Employee
 	sync.Mutex
 }
 
 func NewMemEmployeeRepository() *MemEmployeeRepository {
 	return &MemEmployeeRepository{
-		data:    make(map[string]model.Employee),
-		counter: 1,
+		data: make(map[uuid.UUID]model.Employee),
 	}
 }
 
@@ -25,9 +23,8 @@ func (r *MemEmployeeRepository) Create(e *model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 
-	e.ID = fmt.Sprint(r.counter)
-	r.data[string(e.ID)] = *e
-	r.counter++
+	e.ID = uuid.New()
+	r.data[e.ID] = *e
 
 	return nil
 }
@@ -45,7 +42,7 @@ func (r *MemEmployeeRepository) List() ([]*model.Employee, error) {
 	return listEmployee, nil
 }
 
-func (r *MemEmployeeRepository) Read(id string) (*model.Employee, error) {
+func (r *MemEmployeeRepository) Read(id uuid.UUID) (*model.Employee, error) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -57,7 +54,7 @@ func (r *MemEmployeeRepository) Read(id string) (*model.Employee, error) {
 	return &employee, nil
 }
 
-func (r *MemEmployeeRepository) Update(id string, e model.Employee) error {
+func (r *MemEmployeeRepository) Update(id uuid.UUID, e model.Employee) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -66,7 +63,7 @@ func (r *MemEmployeeRepository) Update(id string, e model.Employee) error {
 	return nil
 }
 
-func (r *MemEmployeeRepository) Delete(id string) error {
+func (r *MemEmployeeRepository) Delete(id uuid.UUID) error {
 	r.Lock()
 	defer r.Unlock()
 
