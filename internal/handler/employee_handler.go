@@ -8,7 +8,7 @@ import (
 )
 
 type employeeService interface {
-	CreateEmployee(e *model.Employee) error
+	CreateEmployee(e *model.Employee) (*model.Employee, error)
 	ListEmployees() ([]*model.Employee, error)
 	ReadEmployee(id string) (*model.Employee, error)
 	UpdateEmployee(id string, e model.Employee) error
@@ -29,29 +29,31 @@ func NewEmployeeHandler(svc employeeService) *EmployeeHandler {
 func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	var employee model.Employee
 
+	w.Header().Set("Content-Type", "application/json")
+
 	if err := json.NewDecoder(r.Body).Decode(&employee); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{
-			"error":   "Invalid request body",
-			"details": err,
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Invalid request body",
+			Details: err.Error(),
 		})
 		return
 	}
 
-	if err := h.employeeSvc.CreateEmployee(&employee); err != nil {
+	createdEmployee, err := h.employeeSvc.CreateEmployee(&employee)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]any{
-			"error":   "Internal server error",
-			"details": err,
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Internal server error",
+			Details: err.Error(),
 		})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]any{
-		"message": "Employee created successfully",
-		"data":    employee,
+	json.NewEncoder(w).Encode(SuccessResponse{
+		Message: "Employee created successfully",
+		Data:    createdEmployee,
 	})
 }
 

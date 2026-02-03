@@ -18,17 +18,25 @@ func NewPgEmployeeRepository(db *pgx.Conn) *PgEmployeeRepository {
 	}
 }
 
-func (r *PgEmployeeRepository) Create(e *model.Employee) error {
-	query := `INSERT INTO employees (name, sex, age, salary, department_code) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+func (r *PgEmployeeRepository) Create(e *model.Employee) (*model.Employee, error) {
+	query := `INSERT INTO employees (name, sex, age, salary, department_code) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, sex, age, salary, department_code, created_at, updated_at`
 	params := []any{e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode}
 
-	row := r.db.QueryRow(context.Background(), query, params...)
-	err := row.Scan(&e.ID)
+	err := r.db.QueryRow(context.Background(), query, params...).Scan(
+		&e.ID,
+		&e.Name,
+		&e.Sex,
+		&e.Age,
+		&e.Salary,
+		&e.DepartmentCode,
+		&e.CreatedAt,
+		&e.UpdatedAt,
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return e, nil
 }
 
 func (r *PgEmployeeRepository) List() ([]*model.Employee, error) {

@@ -3,7 +3,7 @@ package service
 import "github.com/alexnesterov/employees-api/internal/model"
 
 type employeeRepository interface {
-	Create(e *model.Employee) error
+	Create(e *model.Employee) (*model.Employee, error)
 	List() ([]*model.Employee, error)
 	Read(id string) (*model.Employee, error)
 	Update(id string, e model.Employee) error
@@ -21,7 +21,7 @@ func NewEmployeeService(repo employeeRepository) *EmployeeService {
 	}
 }
 
-func (s *EmployeeService) CreateEmployee(e *model.Employee) error {
+func (s *EmployeeService) CreateEmployee(e *model.Employee) (*model.Employee, error) {
 	return s.employeeRepo.Create(e)
 }
 
