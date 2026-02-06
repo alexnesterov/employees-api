@@ -5,7 +5,7 @@ services:
     restart: always
     volumes:
       - employees_api_data:/var/lib/postgresql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:Z
     environment:
       POSTGRES_DB: employees_api_db
       POSTGRES_USER: employees_api_user
