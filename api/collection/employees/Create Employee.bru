@@ -1,0 +1,110 @@
+meta {
+  name: Create Employee
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}/employees
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Alex Nesterov",
+    "sex": "M",
+    "age": 35,
+    "salary": 120000,
+    "department_code": null
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+example {
+  name: Success
+  
+  request: {
+    url: {{url}}/employees
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "name": "Alex Nesterov",
+        "sex": "M",
+        "age": 35,
+        "salary": 120000,
+        "department_code": null
+      }
+    }
+  }
+  
+  response: {
+    headers: {
+      content-type: application/json
+      date: Sun, 08 Feb 2026 07:21:20 GMT
+      content-length: 262
+    }
+  
+    status: {
+      code: 201
+      text: Created
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "Employee created successfully",
+          "data": {
+            "id": "bd7da41c-746f-4a70-810d-12709768c08d",
+            "name": "Alex Nesterov",
+            "sex": "M",
+            "age": 35,
+            "salary": 120000,
+            "department_code": null,
+            "created_at": "2026-02-08T07:21:20.62466Z",
+            "updated_at": "2026-02-08T07:21:20.62466Z"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Failed - No Body
+  
+  request: {
+    url: {{url}}/employees
+    method: POST
+    mode: none
+  }
+  
+  response: {
+    headers: {
+      content-type: application/json
+      date: Sun, 08 Feb 2026 07:41:09 GMT
+      content-length: 49
+    }
+  
+    status: {
+      code: 400
+      text: Bad Request
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "error": "Invalid request body",
+          "details": "EOF"
+        }
+      '''
+    }
+  }
+}
