@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexnesterov/employees-api/internal/model"
+	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
 	"github.com/jackc/pgx/v5"
 )
 

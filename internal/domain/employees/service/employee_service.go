@@ -1,6 +1,6 @@
 package service
 
-import "github.com/alexnesterov/employees-api/internal/model"
+import "github.com/alexnesterov/employees-api/internal/domain/employees/model"
 
 type employeeRepository interface {
 	Create(e *model.Employee) (*model.Employee, error)

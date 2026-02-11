@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/alexnesterov/employees-api/internal/model"
+	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
 )
 
 type employeeService interface {

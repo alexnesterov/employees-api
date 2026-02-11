@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/alexnesterov/employees-api/internal/config"
+	"github.com/alexnesterov/employees-api/internal/domain/employees/service"
 	"github.com/alexnesterov/employees-api/internal/handler"
 	"github.com/alexnesterov/employees-api/internal/repository"
-	"github.com/alexnesterov/employees-api/internal/service"
 
 	"github.com/jackc/pgx/v5"
 )

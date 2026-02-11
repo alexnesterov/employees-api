@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/alexnesterov/employees-api/internal/model"
+	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
 	"github.com/google/uuid"
 )
 
