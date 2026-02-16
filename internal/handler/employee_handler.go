@@ -2,17 +2,19 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
+	"github.com/google/uuid"
 )
 
 type employeeService interface {
 	CreateEmployee(e *model.Employee) (*model.Employee, error)
 	ListEmployees() ([]*model.Employee, error)
-	ReadEmployee(id string) (*model.Employee, error)
-	UpdateEmployee(id string, e model.Employee) error
-	DeleteEmployee(id string) error
+	ReadEmployee(id uuid.UUID) (*model.Employee, error)
+	UpdateEmployee(id uuid.UUID, e model.Employee) error
+	DeleteEmployee(id uuid.UUID) error
 	UpdateEmployeeDepartment(e *model.Employee) error
 }
 
@@ -77,14 +79,50 @@ func (h *EmployeeHandler) ListEmployee(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *EmployeeHandler) ReadEmployee(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idValue := r.PathValue("id")
+
+	id, err := uuid.Parse(idValue)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Invalid id",
+			Details: err.Error(),
+		})
+		return
+	}
+
+	employee, err := h.employeeSvc.ReadEmployee(id)
+	if err != nil {
+		if errors.Is(err, model.ErrEmployeeNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(ErrorResponse{
+				Error:   "Employee not found",
+				Details: err.Error(),
+			})
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Failed to get employee",
+			Details: err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(SuccessResponse{
+		Message: "Employee retrieved successfully",
+		Data:    employee,
+	})
+}
+
 func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("employee updated"))
-}
-
-func (h *EmployeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("employee"))
 }
 
 func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {

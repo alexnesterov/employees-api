@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -60,7 +61,7 @@ func (r *PgEmployeeRepository) List() ([]*model.Employee, error) {
 	return employees, err
 }
 
-func (r *PgEmployeeRepository) Read(id string) (*model.Employee, error) {
+func (r *PgEmployeeRepository) Read(id uuid.UUID) (*model.Employee, error) {
 	query := `SELECT id, name, sex, age, salary, department_code FROM employees WHERE id = $1`
 
 	row := r.db.QueryRow(context.Background(), query, id)
@@ -68,7 +69,7 @@ func (r *PgEmployeeRepository) Read(id string) (*model.Employee, error) {
 	err := row.Scan(&employee.ID, &employee.Name, &employee.Sex, &employee.Age, &employee.Salary, &employee.DepartmentCode)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, errors.New("employee not found")
+			return nil, model.ErrEmployeeNotFound
 		}
 		return nil, err
 	}
@@ -76,7 +77,7 @@ func (r *PgEmployeeRepository) Read(id string) (*model.Employee, error) {
 	return employee, nil
 }
 
-func (r *PgEmployeeRepository) Update(id string, e model.Employee) error {
+func (r *PgEmployeeRepository) Update(id uuid.UUID, e model.Employee) error {
 	query := `UPDATE employees SET name = $1, sex = $2, age = $3, salary = $4, department_code = $5 WHERE id = $6`
 
 	_, err := r.db.Exec(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode, id)
@@ -87,7 +88,7 @@ func (r *PgEmployeeRepository) Update(id string, e model.Employee) error {
 	return nil
 }
 
-func (r *PgEmployeeRepository) Delete(id string) error {
+func (r *PgEmployeeRepository) Delete(id uuid.UUID) error {
 	query := `DELETE FROM employees WHERE id = $1`
 
 	_, err := r.db.Exec(context.Background(), query, id)

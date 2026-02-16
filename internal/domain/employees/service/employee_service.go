@@ -1,13 +1,16 @@
 package service
 
-import "github.com/alexnesterov/employees-api/internal/domain/employees/model"
+import (
+	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
+	"github.com/google/uuid"
+)
 
 type employeeRepository interface {
 	Create(e *model.Employee) (*model.Employee, error)
 	List() ([]*model.Employee, error)
-	Read(id string) (*model.Employee, error)
-	Update(id string, e model.Employee) error
-	Delete(id string) error
+	Read(id uuid.UUID) (*model.Employee, error)
+	Update(id uuid.UUID, e model.Employee) error
+	Delete(id uuid.UUID) error
 	UpdateDepartment(e *model.Employee) error
 }
 
@@ -29,15 +32,15 @@ func (s *EmployeeService) ListEmployees() ([]*model.Employee, error) {
 	return s.employeeRepo.List()
 }
 
-func (s *EmployeeService) ReadEmployee(id string) (*model.Employee, error) {
+func (s *EmployeeService) ReadEmployee(id uuid.UUID) (*model.Employee, error) {
 	return s.employeeRepo.Read(id)
 }
 
-func (s *EmployeeService) UpdateEmployee(id string, e model.Employee) error {
+func (s *EmployeeService) UpdateEmployee(id uuid.UUID, e model.Employee) error {
 	return s.employeeRepo.Update(id, e)
 }
 
-func (s *EmployeeService) DeleteEmployee(id string) error {
+func (s *EmployeeService) DeleteEmployee(id uuid.UUID) error {
 	return s.employeeRepo.Delete(id)
 }
 
