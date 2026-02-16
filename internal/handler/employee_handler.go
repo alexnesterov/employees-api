@@ -57,6 +57,26 @@ func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 	})
 }
 
+func (h *EmployeeHandler) ListEmployee(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	list, err := h.employeeSvc.ListEmployees()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Failed to get employees",
+			Details: err.Error(),
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(SuccessResponse{
+		Message: "Employees retrieved successfully",
+		Data:    list,
+	})
+}
+
 func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("employee updated"))
@@ -65,11 +85,6 @@ func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 func (h *EmployeeHandler) GetEmployee(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("employee"))
-}
-
-func (h *EmployeeHandler) ListEmployee(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("employees"))
 }
 
 func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {

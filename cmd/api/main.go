@@ -35,7 +35,7 @@ func main() {
 	employeeHandler := handler.NewEmployeeHandler(employeeService)
 
 	mux.HandleFunc("POST /employees", employeeHandler.CreateEmployee)
-	// router.GET("/employees", handlerEmployee.ListEmployee)
+	mux.HandleFunc("GET /employees", employeeHandler.ListEmployee)
 	// router.GET("/employees/:id", handlerEmployee.GetEmployee)
 	// router.PUT("/employees/:id", handlerEmployee.UpdateEmployee)
 	// router.DELETE("/employees/:id", handlerEmployee.DeleteEmployee)
