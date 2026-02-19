@@ -2,28 +2,29 @@ package repository
 
 import (
 	"context"
-	"errors"
 
 	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
-type PgEmployeeRepository struct {
+type pgEmployeeRepository struct {
 	db *pgx.Conn
 }
 
-func NewPgEmployeeRepository(db *pgx.Conn) *PgEmployeeRepository {
-	return &PgEmployeeRepository{
+func NewPgEmployeeRepository(db *pgx.Conn) model.EmployeeRepository {
+	return &pgEmployeeRepository{
 		db: db,
 	}
 }
 
-func (r *PgEmployeeRepository) Create(e *model.Employee) (*model.Employee, error) {
-	query := `INSERT INTO employees (name, sex, age, salary, department_code) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, sex, age, salary, department_code, created_at, updated_at`
-	params := []any{e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode}
+func (r *pgEmployeeRepository) Create(e *model.Employee) error {
+	query := `
+		INSERT INTO employees (name, sex, age, salary, department_code)
+		VALUES ($1, $2, $3, $4, $5)
+	`
 
-	err := r.db.QueryRow(context.Background(), query, params...).Scan(
+	err := r.db.QueryRow(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode).Scan(
 		&e.ID,
 		&e.Name,
 		&e.Sex,
@@ -34,13 +35,13 @@ func (r *PgEmployeeRepository) Create(e *model.Employee) (*model.Employee, error
 		&e.UpdatedAt,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return e, nil
+	return nil
 }
 
-func (r *PgEmployeeRepository) List() ([]*model.Employee, error) {
+func (r *pgEmployeeRepository) List() ([]*model.Employee, error) {
 	query := `SELECT id, name, sex, age, salary, department_code FROM employees`
 
 	rows, err := r.db.Query(context.Background(), query)
@@ -61,7 +62,7 @@ func (r *PgEmployeeRepository) List() ([]*model.Employee, error) {
 	return employees, err
 }
 
-func (r *PgEmployeeRepository) Read(id uuid.UUID) (*model.Employee, error) {
+func (r *pgEmployeeRepository) Read(id uuid.UUID) (*model.Employee, error) {
 	query := `SELECT id, name, sex, age, salary, department_code FROM employees WHERE id = $1`
 
 	row := r.db.QueryRow(context.Background(), query, id)
@@ -77,36 +78,14 @@ func (r *PgEmployeeRepository) Read(id uuid.UUID) (*model.Employee, error) {
 	return employee, nil
 }
 
-func (r *PgEmployeeRepository) Update(id uuid.UUID, e *model.Employee) (*model.Employee, error) {
+func (r *pgEmployeeRepository) Update(e *model.Employee) error {
 	query := `
 		UPDATE employees
 		SET name = $1, sex = $2, age = $3, salary = $4, department_code = $5
 		WHERE id = $6
-		RETURNING id, name, sex, age, salary, department_code, created_at, updated_at
 	`
 
-	var updatedEmployee model.Employee
-	err := r.db.QueryRow(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode, id).Scan(
-		&updatedEmployee.ID,
-		&updatedEmployee.Name,
-		&updatedEmployee.Sex,
-		&updatedEmployee.Age,
-		&updatedEmployee.Salary,
-		&updatedEmployee.DepartmentCode,
-		&updatedEmployee.CreatedAt,
-		&updatedEmployee.UpdatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &updatedEmployee, nil
-}
-
-func (r *PgEmployeeRepository) Delete(id uuid.UUID) error {
-	query := `DELETE FROM employees WHERE id = $1`
-
-	_, err := r.db.Exec(context.Background(), query, id)
+	_, err := r.db.Exec(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode, e.ID)
 	if err != nil {
 		return err
 	}
@@ -114,16 +93,12 @@ func (r *PgEmployeeRepository) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (r *PgEmployeeRepository) UpdateDepartment(e *model.Employee) error {
-	query := `UPDATE employees SET department_code = $1 WHERE id = $2`
+func (r *pgEmployeeRepository) Delete(id uuid.UUID) error {
+	query := `DELETE FROM employees WHERE id = $1`
 
-	result, err := r.db.Exec(context.Background(), query, e.DepartmentCode, e.ID)
+	_, err := r.db.Exec(context.Background(), query, id)
 	if err != nil {
 		return err
-	}
-
-	if result.RowsAffected() == 0 {
-		return errors.New("employee not found")
 	}
 
 	return nil

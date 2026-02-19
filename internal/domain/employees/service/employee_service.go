@@ -5,45 +5,73 @@ import (
 	"github.com/google/uuid"
 )
 
-type employeeRepository interface {
-	Create(e *model.Employee) (*model.Employee, error)
-	List() ([]*model.Employee, error)
-	Read(id uuid.UUID) (*model.Employee, error)
-	Update(id uuid.UUID, e *model.Employee) (*model.Employee, error)
-	Delete(id uuid.UUID) error
-	UpdateDepartment(e *model.Employee) error
+type employeeService struct {
+	employeeRepo model.EmployeeRepository
 }
 
-type EmployeeService struct {
-	employeeRepo employeeRepository
-}
-
-func NewEmployeeService(repo employeeRepository) *EmployeeService {
-	return &EmployeeService{
+func NewEmployeeService(repo model.EmployeeRepository) model.EmployeeService {
+	return &employeeService{
 		employeeRepo: repo,
 	}
 }
 
-func (s *EmployeeService) CreateEmployee(e *model.Employee) (*model.Employee, error) {
-	return s.employeeRepo.Create(e)
+func (s *employeeService) CreateEmployee(req *model.CreateEmployeeRequest) (*model.Employee, error) {
+	employee := &model.Employee{
+		Name:           req.Name,
+		Sex:            req.Sex,
+		Age:            req.Age,
+		Salary:         req.Salary,
+		DepartmentCode: req.DepartmentCode,
+	}
+
+	if err := s.employeeRepo.Create(employee); err != nil {
+		return nil, err
+	}
+
+	return employee, nil
 }
 
-func (s *EmployeeService) ListEmployees() ([]*model.Employee, error) {
+func (s *employeeService) ListEmployees() ([]*model.Employee, error) {
 	return s.employeeRepo.List()
 }
 
-func (s *EmployeeService) ReadEmployee(id uuid.UUID) (*model.Employee, error) {
+func (s *employeeService) ReadEmployee(id uuid.UUID) (*model.Employee, error) {
 	return s.employeeRepo.Read(id)
 }
 
-func (s *EmployeeService) UpdateEmployee(id uuid.UUID, e *model.Employee) (*model.Employee, error) {
-	return s.employeeRepo.Update(id, e)
+func (s *employeeService) UpdateEmployee(id uuid.UUID, req *model.UpdateEmployeeRequest) (*model.Employee, error) {
+	employee, err := s.employeeRepo.Read(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Name != nil {
+		employee.Name = *req.Name
+	}
+
+	if req.Sex != nil {
+		employee.Sex = *req.Sex
+	}
+
+	if req.Age != nil {
+		employee.Age = *req.Age
+	}
+
+	if req.Salary != nil {
+		employee.Salary = *req.Salary
+	}
+
+	if req.DepartmentCode != nil {
+		employee.DepartmentCode = req.DepartmentCode
+	}
+
+	if err := s.employeeRepo.Update(employee); err != nil {
+		return nil, err
+	}
+
+	return employee, nil
 }
 
-func (s *EmployeeService) DeleteEmployee(id uuid.UUID) error {
+func (s *employeeService) DeleteEmployee(id uuid.UUID) error {
 	return s.employeeRepo.Delete(id)
-}
-
-func (s *EmployeeService) UpdateEmployeeDepartment(e *model.Employee) error {
-	return s.employeeRepo.UpdateDepartment(e)
 }

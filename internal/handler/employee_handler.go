@@ -9,31 +9,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type employeeService interface {
-	CreateEmployee(e *model.Employee) (*model.Employee, error)
-	ListEmployees() ([]*model.Employee, error)
-	ReadEmployee(id uuid.UUID) (*model.Employee, error)
-	UpdateEmployee(id uuid.UUID, e *model.Employee) (*model.Employee, error)
-	DeleteEmployee(id uuid.UUID) error
-	UpdateEmployeeDepartment(e *model.Employee) error
-}
-
 type EmployeeHandler struct {
-	employeeSvc employeeService
+	employeeSvc model.EmployeeService
 }
 
-func NewEmployeeHandler(svc employeeService) *EmployeeHandler {
+func NewEmployeeHandler(svc model.EmployeeService) *EmployeeHandler {
 	return &EmployeeHandler{
 		employeeSvc: svc,
 	}
 }
 
 func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
-	var employee model.Employee
-
 	w.Header().Set("Content-Type", "application/json")
 
-	if err := json.NewDecoder(r.Body).Decode(&employee); err != nil {
+	var req model.CreateEmployeeRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(ErrorResponse{
 			Error:   "Invalid request body",
@@ -42,7 +32,7 @@ func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	createdEmployee, err := h.employeeSvc.CreateEmployee(&employee)
+	createdEmployee, err := h.employeeSvc.CreateEmployee(&req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(ErrorResponse{
@@ -134,8 +124,8 @@ func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var employee model.Employee
-	if err := json.NewDecoder(r.Body).Decode(&employee); err != nil {
+	var req model.UpdateEmployeeRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(ErrorResponse{
 			Error:   "Invalid request body",
@@ -144,7 +134,7 @@ func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	updatedEmployee, err := h.employeeSvc.UpdateEmployee(id, &employee)
+	updatedEmployee, err := h.employeeSvc.UpdateEmployee(id, &req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(ErrorResponse{
