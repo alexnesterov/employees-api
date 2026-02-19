@@ -1,0 +1,30 @@
+meta {
+  name: Update Employee
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{url}}/employees/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 33446d6b-bb9e-4d34-b263-3e751baee2d8
+}
+
+body:json {
+  {
+    "name": "Anastasia Nesterova",
+    "sex": "F",
+    "age": 30,
+    "salary": 200000,
+    "department_code": "IT"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

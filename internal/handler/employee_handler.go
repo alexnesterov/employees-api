@@ -13,7 +13,7 @@ type employeeService interface {
 	CreateEmployee(e *model.Employee) (*model.Employee, error)
 	ListEmployees() ([]*model.Employee, error)
 	ReadEmployee(id uuid.UUID) (*model.Employee, error)
-	UpdateEmployee(id uuid.UUID, e model.Employee) error
+	UpdateEmployee(id uuid.UUID, e *model.Employee) (*model.Employee, error)
 	DeleteEmployee(id uuid.UUID) error
 	UpdateEmployeeDepartment(e *model.Employee) error
 }
@@ -121,8 +121,44 @@ func (h *EmployeeHandler) ReadEmployee(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idValue := r.PathValue("id")
+	id, err := uuid.Parse(idValue)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Invalid id",
+			Details: err.Error(),
+		})
+		return
+	}
+
+	var employee model.Employee
+	if err := json.NewDecoder(r.Body).Decode(&employee); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Invalid request body",
+			Details: err.Error(),
+		})
+		return
+	}
+
+	updatedEmployee, err := h.employeeSvc.UpdateEmployee(id, &employee)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Failed to update employee",
+			Details: err.Error(),
+		})
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("employee updated"))
+	json.NewEncoder(w).Encode(SuccessResponse{
+		Message: "Employee updated successfully",
+		Data:    updatedEmployee,
+	})
 }
 
 func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {

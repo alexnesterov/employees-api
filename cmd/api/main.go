@@ -37,7 +37,7 @@ func main() {
 	mux.HandleFunc("POST /employees", employeeHandler.CreateEmployee)
 	mux.HandleFunc("GET /employees", employeeHandler.ListEmployee)
 	mux.HandleFunc("GET /employees/{id}", employeeHandler.ReadEmployee)
-	// router.PUT("/employees/:id", handlerEmployee.UpdateEmployee)
+	mux.HandleFunc("PUT /employees/{id}", employeeHandler.UpdateEmployee)
 	// router.DELETE("/employees/:id", handlerEmployee.DeleteEmployee)
 	// router.PUT("/employees/:id/department", handlerEmployee.UpdateEmployeeDepartment)
 

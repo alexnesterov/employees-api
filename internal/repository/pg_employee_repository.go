@@ -77,15 +77,30 @@ func (r *PgEmployeeRepository) Read(id uuid.UUID) (*model.Employee, error) {
 	return employee, nil
 }
 
-func (r *PgEmployeeRepository) Update(id uuid.UUID, e model.Employee) error {
-	query := `UPDATE employees SET name = $1, sex = $2, age = $3, salary = $4, department_code = $5 WHERE id = $6`
+func (r *PgEmployeeRepository) Update(id uuid.UUID, e *model.Employee) (*model.Employee, error) {
+	query := `
+		UPDATE employees
+		SET name = $1, sex = $2, age = $3, salary = $4, department_code = $5
+		WHERE id = $6
+		RETURNING id, name, sex, age, salary, department_code, created_at, updated_at
+	`
 
-	_, err := r.db.Exec(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode, id)
+	var updatedEmployee model.Employee
+	err := r.db.QueryRow(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode, id).Scan(
+		&updatedEmployee.ID,
+		&updatedEmployee.Name,
+		&updatedEmployee.Sex,
+		&updatedEmployee.Age,
+		&updatedEmployee.Salary,
+		&updatedEmployee.DepartmentCode,
+		&updatedEmployee.CreatedAt,
+		&updatedEmployee.UpdatedAt,
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &updatedEmployee, nil
 }
 
 func (r *PgEmployeeRepository) Delete(id uuid.UUID) error {
