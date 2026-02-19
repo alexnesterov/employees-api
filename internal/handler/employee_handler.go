@@ -152,6 +152,30 @@ func (h *EmployeeHandler) UpdateEmployee(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idValue := r.PathValue("id")
+	id, err := uuid.Parse(idValue)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Invalid id",
+			Details: err.Error(),
+		})
+		return
+	}
+
+	if err := h.employeeSvc.DeleteEmployee(id); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Failed to delete employee",
+			Details: err.Error(),
+		})
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("employee deleted"))
+	json.NewEncoder(w).Encode(SuccessResponse{
+		Message: "Employee deleted successfully",
+	})
 }

@@ -38,8 +38,7 @@ func main() {
 	mux.HandleFunc("GET /employees", employeeHandler.ListEmployee)
 	mux.HandleFunc("GET /employees/{id}", employeeHandler.ReadEmployee)
 	mux.HandleFunc("PUT /employees/{id}", employeeHandler.UpdateEmployee)
-	// router.DELETE("/employees/:id", handlerEmployee.DeleteEmployee)
-	// router.PUT("/employees/:id/department", handlerEmployee.UpdateEmployeeDepartment)
+	mux.HandleFunc("DELETE /employees/{id}", employeeHandler.DeleteEmployee)
 
 	// departmentRepo := repository.NewDepartmentPgRepo(conn)
 	// departmentService := service.NewDepartmentService(departmentRepo)

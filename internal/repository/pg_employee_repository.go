@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
 	"github.com/google/uuid"
@@ -18,22 +19,27 @@ func NewPgEmployeeRepository(db *pgx.Conn) model.EmployeeRepository {
 	}
 }
 
-func (r *pgEmployeeRepository) Create(e *model.Employee) error {
+func (r *pgEmployeeRepository) Create(employee *model.Employee) error {
 	query := `
-		INSERT INTO employees (name, sex, age, salary, department_code)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO employees (id, name, sex, age, salary, department_code, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
-	err := r.db.QueryRow(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode).Scan(
-		&e.ID,
-		&e.Name,
-		&e.Sex,
-		&e.Age,
-		&e.Salary,
-		&e.DepartmentCode,
-		&e.CreatedAt,
-		&e.UpdatedAt,
+	now := time.Now()
+	employee.CreatedAt = now
+	employee.UpdatedAt = now
+
+	_, err := r.db.Exec(context.Background(), query,
+		employee.ID,
+		employee.Name,
+		employee.Sex,
+		employee.Age,
+		employee.Salary,
+		employee.DepartmentCode,
+		employee.CreatedAt,
+		employee.UpdatedAt,
 	)
+
 	if err != nil {
 		return err
 	}

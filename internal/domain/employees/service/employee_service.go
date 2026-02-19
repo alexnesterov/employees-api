@@ -17,6 +17,7 @@ func NewEmployeeService(repo model.EmployeeRepository) model.EmployeeService {
 
 func (s *employeeService) CreateEmployee(req *model.CreateEmployeeRequest) (*model.Employee, error) {
 	employee := &model.Employee{
+		ID:             uuid.New(),
 		Name:           req.Name,
 		Sex:            req.Sex,
 		Age:            req.Age,
