@@ -155,8 +155,3 @@ func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("employee deleted"))
 }
-
-func (h *EmployeeHandler) UpdateEmployeeDepartment(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("employee department updated"))
-}
