@@ -21,3 +21,19 @@ type Employee struct {
 var (
 	ErrEmployeeNotFound = errors.New("employee not found")
 )
+
+type CreateEmployeeRequest struct {
+	Name           string  `json:"name"`
+	Sex            string  `json:"sex"`
+	Age            int     `json:"age"`
+	Salary         int     `json:"salary"`
+	DepartmentCode *string `json:"department_code"`
+}
+
+type UpdateEmployeeRequest struct {
+	Name           *string `json:"name"`
+	Sex            *string `json:"sex"`
+	Age            *int    `json:"age"`
+	Salary         *int    `json:"salary"`
+	DepartmentCode *string `json:"department_code"`
+}
