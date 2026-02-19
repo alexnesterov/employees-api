@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/alexnesterov/employees-api/internal/domain/departments/model"
-	"github.com/alexnesterov/employees-api/internal/service"
+	// TODO убрать зависимость от сервиса, брать из модели интерфейс
+	"github.com/alexnesterov/employees-api/internal/domain/departments/service"
 	"github.com/gin-gonic/gin"
 )
 
