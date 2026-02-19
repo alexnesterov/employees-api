@@ -1,6 +1,6 @@
 package service
 
-import "github.com/alexnesterov/employees-api/internal/model"
+import "github.com/alexnesterov/employees-api/internal/domain/departments/model"
 
 type DepartmentService struct {
 	repo model.DepartmentRepo

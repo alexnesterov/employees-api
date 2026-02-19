@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/alexnesterov/employees-api/internal/model"
+	"github.com/alexnesterov/employees-api/internal/domain/departments/model"
 	"github.com/alexnesterov/employees-api/internal/service"
 	"github.com/gin-gonic/gin"
 )
