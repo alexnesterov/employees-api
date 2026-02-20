@@ -1,10 +1,10 @@
 services:
   db:
-    container_name: employees_api_postgres
+    container_name: postgres
     image: postgres
     restart: always
     volumes:
-      - employees_api_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:Z
     environment:
       POSTGRES_DB: employees_api_db
@@ -16,7 +16,7 @@ services:
       - employees_api_network
 
   adminer:
-    container_name: employees_api_adminer
+    container_name: adminer
     image: adminer
     restart: always
     ports:
@@ -31,4 +31,4 @@ networks:
     driver: bridge
 
 volumes:
-  employees_api_data:
+  postgres_data:

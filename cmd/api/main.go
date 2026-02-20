@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/alexnesterov/employees-api/internal/config"
+	department "github.com/alexnesterov/employees-api/internal/domain/departments/service"
+	employee "github.com/alexnesterov/employees-api/internal/domain/employees/service"
 	"github.com/alexnesterov/employees-api/internal/handler"
 	"github.com/alexnesterov/employees-api/internal/repository"
-	"github.com/alexnesterov/employees-api/internal/service"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -27,27 +29,37 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	router := gin.Default()
+	mux := http.NewServeMux()
 
-	employeeRepo := repository.NewEmployeePgRepo(conn)
-	employeeService := service.NewEmployeeService(employeeRepo)
-	handlerEmployee := handler.NewEmployeeHandler(employeeService)
+	employeeRepository := repository.NewPgEmployeeRepository(conn)
+	employeeService := employee.NewEmployeeService(employeeRepository)
+	employeeHandler := handler.NewEmployeeHandler(employeeService)
 
-	router.POST("/employees", handlerEmployee.CreateEmployee)
-	router.GET("/employees", handlerEmployee.ListEmployee)
-	router.GET("/employees/:id", handlerEmployee.GetEmployee)
-	router.PUT("/employees/:id", handlerEmployee.UpdateEmployee)
-	router.DELETE("/employees/:id", handlerEmployee.DeleteEmployee)
-	router.PUT("/employees/:id/department", handlerEmployee.UpdateEmployeeDepartment)
+	mux.HandleFunc("POST /employees", employeeHandler.CreateEmployee)
+	mux.HandleFunc("GET /employees", employeeHandler.ListEmployee)
+	mux.HandleFunc("GET /employees/{id}", employeeHandler.ReadEmployee)
+	mux.HandleFunc("PUT /employees/{id}", employeeHandler.UpdateEmployee)
+	mux.HandleFunc("DELETE /employees/{id}", employeeHandler.DeleteEmployee)
 
 	departmentRepo := repository.NewDepartmentPgRepo(conn)
-	departmentService := service.NewDepartmentService(departmentRepo)
+	departmentService := department.NewDepartmentService(departmentRepo)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
 
-	router.POST("/departments", departmentHandler.CreateDepartment)
-	router.GET("/departments", departmentHandler.ListDepartments)
-	router.GET("/departments/:id", departmentHandler.ReadDepartment)
-	router.DELETE("/departments/:id", departmentHandler.DeleteDepartment)
+	mux.HandleFunc("POST /departments", departmentHandler.CreateDepartment)
+	mux.HandleFunc("GET /departments", departmentHandler.ListDepartments)
+	mux.HandleFunc("GET /departments/{id}", departmentHandler.ReadDepartment)
+	mux.HandleFunc("DELETE /departments/{id}", departmentHandler.DeleteDepartment)
 
-	router.Run(":" + cfg.Port)
+	server := &http.Server{
+		Addr:           ":" + cfg.Port,
+		Handler:        mux,
+		MaxHeaderBytes: 1 << 20,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+	}
+
+	log.Printf("Starting server on port %s", cfg.Port)
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }

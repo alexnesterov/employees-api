@@ -1,0 +1,115 @@
+package repository
+
+import (
+	"context"
+	"time"
+
+	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+)
+
+type pgEmployeeRepository struct {
+	db *pgx.Conn
+}
+
+func NewPgEmployeeRepository(db *pgx.Conn) model.EmployeeRepository {
+	return &pgEmployeeRepository{
+		db: db,
+	}
+}
+
+func (r *pgEmployeeRepository) Create(employee *model.Employee) error {
+	query := `
+		INSERT INTO employees (id, name, sex, age, salary, department_code, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`
+
+	now := time.Now()
+	employee.CreatedAt = now
+	employee.UpdatedAt = now
+
+	_, err := r.db.Exec(context.Background(), query,
+		employee.ID,
+		employee.Name,
+		employee.Sex,
+		employee.Age,
+		employee.Salary,
+		employee.DepartmentCode,
+		employee.CreatedAt,
+		employee.UpdatedAt,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *pgEmployeeRepository) List() ([]*model.Employee, error) {
+	query := `SELECT id, name, sex, age, salary, department_code FROM employees`
+
+	rows, err := r.db.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	employees, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (*model.Employee, error) {
+		employee := &model.Employee{}
+		err := row.Scan(&employee.ID, &employee.Name, &employee.Sex, &employee.Age, &employee.Salary, &employee.DepartmentCode)
+		if err != nil {
+			return nil, err
+		}
+		return employee, nil
+	})
+
+	return employees, err
+}
+
+func (r *pgEmployeeRepository) Read(id uuid.UUID) (*model.Employee, error) {
+	query := `SELECT id, name, sex, age, salary, department_code FROM employees WHERE id = $1`
+
+	row := r.db.QueryRow(context.Background(), query, id)
+	employee := &model.Employee{}
+	err := row.Scan(&employee.ID, &employee.Name, &employee.Sex, &employee.Age, &employee.Salary, &employee.DepartmentCode)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, model.ErrEmployeeNotFound
+		}
+		return nil, err
+	}
+
+	return employee, nil
+}
+
+func (r *pgEmployeeRepository) Update(e *model.Employee) error {
+	query := `
+		UPDATE employees
+		SET name = $1, sex = $2, age = $3, salary = $4, department_code = $5
+		WHERE id = $6
+	`
+
+	_, err := r.db.Exec(context.Background(), query, e.Name, e.Sex, e.Age, e.Salary, e.DepartmentCode, e.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *pgEmployeeRepository) Delete(id uuid.UUID) error {
+	query := `DELETE FROM employees WHERE id = $1`
+
+	result, err := r.db.Exec(context.Background(), query, id)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return model.ErrEmployeeNotFound
+	}
+
+	return nil
+}
