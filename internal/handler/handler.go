@@ -7,5 +7,5 @@ type SuccessResponse struct {
 
 type ErrorResponse struct {
 	Error   string `json:"error"`
-	Details string `json:"details"`
+	Details string `json:"details,omitempty"`
 }

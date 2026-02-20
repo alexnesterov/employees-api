@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 
 	"github.com/alexnesterov/employees-api/internal/domain/departments/model"
 	"github.com/jackc/pgx/v5"
@@ -12,18 +11,23 @@ type departmentPgRepo struct {
 	db *pgx.Conn
 }
 
-func NewDepartmentPgRepo(db *pgx.Conn) model.DepartmentRepo {
+func NewDepartmentPgRepo(db *pgx.Conn) model.DepartmentRepository {
 	return &departmentPgRepo{
 		db: db,
 	}
 }
 
-func (r *departmentPgRepo) Create(dpt *model.Department) error {
-	query := `INSERT INTO departments (code, name) VALUES ($1, $2) RETURNING code`
-	params := []any{dpt.Code, dpt.Name}
+func (r *departmentPgRepo) Create(department *model.Department) error {
+	query := `
+		INSERT INTO departments (code, name)
+		VALUES ($1, $2)
+	`
 
-	row := r.db.QueryRow(context.Background(), query, params...)
-	err := row.Scan(&dpt.Code)
+	_, err := r.db.Exec(context.Background(), query,
+		department.Code,
+		department.Name,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -60,7 +64,7 @@ func (r *departmentPgRepo) Read(code string) (*model.Department, error) {
 	err := row.Scan(&department.Code, &department.Name)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, errors.New("department not found")
+			return nil, model.ErrDepartmentNotFound
 		}
 		return nil, err
 	}
@@ -77,7 +81,7 @@ func (r *departmentPgRepo) Delete(code string) error {
 	}
 
 	if result.RowsAffected() == 0 {
-		return errors.New("department not found")
+		return model.ErrDepartmentNotFound
 	}
 
 	return nil

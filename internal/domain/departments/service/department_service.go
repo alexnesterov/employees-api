@@ -2,28 +2,37 @@ package service
 
 import "github.com/alexnesterov/employees-api/internal/domain/departments/model"
 
-type DepartmentService struct {
-	repo model.DepartmentRepo
+type departmentService struct {
+	repo model.DepartmentRepository
 }
 
-func NewDepartmentService(repo model.DepartmentRepo) *DepartmentService {
-	return &DepartmentService{
+func NewDepartmentService(repo model.DepartmentRepository) model.DepartmentService {
+	return &departmentService{
 		repo: repo,
 	}
 }
 
-func (s *DepartmentService) CreateDepartment(dpt *model.Department) error {
-	return s.repo.Create(dpt)
+func (s *departmentService) CreateDepartment(req *model.CreateDepartmentRequest) (*model.Department, error) {
+	department := &model.Department{
+		Code: req.Code,
+		Name: req.Name,
+	}
+
+	if err := s.repo.Create(department); err != nil {
+		return nil, err
+	}
+
+	return department, nil
 }
 
-func (s *DepartmentService) ListDepartments() ([]*model.Department, error) {
+func (s *departmentService) ListDepartments() ([]*model.Department, error) {
 	return s.repo.List()
 }
 
-func (s *DepartmentService) ReadDepartment(code string) (*model.Department, error) {
+func (s *departmentService) ReadDepartment(code string) (*model.Department, error) {
 	return s.repo.Read(code)
 }
 
-func (s *DepartmentService) DeleteDepartment(code string) error {
+func (s *departmentService) DeleteDepartment(code string) error {
 	return s.repo.Delete(code)
 }
