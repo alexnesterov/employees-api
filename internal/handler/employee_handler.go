@@ -36,7 +36,7 @@ func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(ErrorResponse{
-			Error:   "Internal server error",
+			Error:   "Failed to create employee",
 			Details: err.Error(),
 		})
 		return
@@ -54,7 +54,7 @@ func (h *EmployeeHandler) ListEmployee(w http.ResponseWriter, r *http.Request) {
 
 	list, err := h.employeeSvc.ListEmployees()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(ErrorResponse{
 			Error:   "Failed to get employees",
 			Details: err.Error(),
@@ -85,17 +85,17 @@ func (h *EmployeeHandler) ReadEmployee(w http.ResponseWriter, r *http.Request) {
 	}
 
 	employee, err := h.employeeSvc.ReadEmployee(id)
-	if err != nil {
-		if errors.Is(err, model.ErrEmployeeNotFound) {
-			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(ErrorResponse{
-				Error:   "Employee not found",
-				Details: err.Error(),
-			})
-			return
-		}
+	if errors.Is(err, model.ErrEmployeeNotFound) {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error:   "Employee not found",
+			Details: err.Error(),
+		})
+		return
+	}
 
-		w.WriteHeader(http.StatusBadRequest)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(ErrorResponse{
 			Error:   "Failed to get employee",
 			Details: err.Error(),
@@ -165,7 +165,16 @@ func (h *EmployeeHandler) DeleteEmployee(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := h.employeeSvc.DeleteEmployee(id); err != nil {
+	err = h.employeeSvc.DeleteEmployee(id)
+	if errors.Is(err, model.ErrEmployeeNotFound) {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Error: "Employee not found",
+		})
+		return
+	}
+
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(ErrorResponse{
 			Error:   "Failed to delete employee",

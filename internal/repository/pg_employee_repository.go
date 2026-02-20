@@ -102,9 +102,13 @@ func (r *pgEmployeeRepository) Update(e *model.Employee) error {
 func (r *pgEmployeeRepository) Delete(id uuid.UUID) error {
 	query := `DELETE FROM employees WHERE id = $1`
 
-	_, err := r.db.Exec(context.Background(), query, id)
+	result, err := r.db.Exec(context.Background(), query, id)
 	if err != nil {
 		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return model.ErrEmployeeNotFound
 	}
 
 	return nil
