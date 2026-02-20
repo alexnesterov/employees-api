@@ -62,7 +62,7 @@ func (h *DepartmentHandler) ListDepartments(w http.ResponseWriter, r *http.Reque
 	}
 
 	if len(list) == 0 {
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(SuccessResponse{
 			Message: "No departments found",
 			Data:    list,
