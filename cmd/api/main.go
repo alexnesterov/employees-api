@@ -4,6 +4,9 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/alexnesterov/employees-api/internal/config"
@@ -12,26 +15,28 @@ import (
 	"github.com/alexnesterov/employees-api/internal/handler"
 	"github.com/alexnesterov/employees-api/internal/repository"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
 	cfg := config.Load()
 
-	connConfig, err := pgx.ParseConfig(cfg.DatabaseURL)
-	if err != nil {
-		log.Fatalf("failed to parse database config: %v", err)
-	}
+	ctx := context.Background()
 
-	conn, err := pgx.ConnectConfig(context.Background(), connConfig)
+	pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		log.Fatal("failed to connect to database:", err)
 	}
-	defer conn.Close(context.Background())
+	defer pool.Close()
+
+	if err := pool.Ping(ctx); err != nil {
+		log.Fatal("failed to ping database:", err)
+	}
+	log.Println("Connected to database")
 
 	mux := http.NewServeMux()
 
-	employeeRepository := repository.NewPgEmployeeRepository(conn)
+	employeeRepository := repository.NewPgEmployeeRepository(pool)
 	employeeService := employee.NewEmployeeService(employeeRepository)
 	employeeHandler := handler.NewEmployeeHandler(employeeService)
 
@@ -41,7 +46,7 @@ func main() {
 	mux.HandleFunc("PUT /employees/{id}", employeeHandler.UpdateEmployee)
 	mux.HandleFunc("DELETE /employees/{id}", employeeHandler.DeleteEmployee)
 
-	departmentRepo := repository.NewDepartmentPgRepo(conn)
+	departmentRepo := repository.NewDepartmentPgRepo(pool)
 	departmentService := department.NewDepartmentService(departmentRepo)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
 
@@ -56,10 +61,30 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
+		IdleTimeout:    60 * time.Second,
 	}
 
-	log.Printf("Starting server on port %s", cfg.Port)
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("Starting server on port %s", cfg.Port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	<-quit
+	log.Println("Shutting down server...")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
 	}
+
+	log.Println("Closing database connection...")
+	pool.Close()
+	log.Println("Server stopped")
 }

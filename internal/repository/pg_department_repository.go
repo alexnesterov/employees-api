@@ -5,13 +5,14 @@ import (
 
 	"github.com/alexnesterov/employees-api/internal/domain/departments/model"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type departmentPgRepo struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewDepartmentPgRepo(db *pgx.Conn) model.DepartmentRepository {
+func NewDepartmentPgRepo(db *pgxpool.Pool) model.DepartmentRepository {
 	return &departmentPgRepo{
 		db: db,
 	}

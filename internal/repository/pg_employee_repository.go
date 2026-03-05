@@ -7,13 +7,14 @@ import (
 	"github.com/alexnesterov/employees-api/internal/domain/employees/model"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type pgEmployeeRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewPgEmployeeRepository(db *pgx.Conn) model.EmployeeRepository {
+func NewPgEmployeeRepository(db *pgxpool.Pool) model.EmployeeRepository {
 	return &pgEmployeeRepository{
 		db: db,
 	}
