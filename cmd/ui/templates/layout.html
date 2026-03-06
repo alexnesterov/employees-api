@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            background: #fff;
+            color: #18181b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        header { margin-bottom: 36px; }
+        header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: #18181b; }
+
+        /* Tabs */
+        .tab-nav { display: flex; border-bottom: 1px solid #e4e4e7; margin-bottom: 24px; }
+        .tab-btn {
+            background: none; border: none; border-bottom: 2px solid transparent;
+            margin-bottom: -1px; padding: 8px 16px; font-size: 13px; color: #71717a;
+            cursor: pointer; font-family: inherit; transition: color .15s;
+        }
+        .tab-btn:hover { color: #18181b; }
+        .tab-btn.active { color: #18181b; border-bottom-color: #18181b; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            font-size: 11px; font-weight: 500; text-transform: uppercase;
+            letter-spacing: .06em; color: #71717a; padding: 0 12px 10px;
+            border-bottom: 1px solid #e4e4e7; text-align: left;
+        }
+        tbody tr { border-bottom: 1px solid #f4f4f5; transition: background .1s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #fafafa; }
+        tbody td { padding: 11px 12px; color: #18181b; }
+        .empty-row td { text-align: center; color: #a1a1aa; padding: 32px 12px; font-size: 13px; }
+
+        /* Inputs */
+        input, select {
+            font-family: inherit; font-size: 13px; color: #18181b;
+            border: 1px solid #e4e4e7; border-radius: 6px;
+            padding: 6px 10px; background: #fff; outline: none;
+            transition: border-color .15s;
+        }
+        input:focus, select:focus { border-color: #a1a1aa; }
+        input[type="number"] { width: 80px; }
+
+        /* Inline inputs in table edit rows */
+        td input, td select { padding: 4px 8px; font-size: 13px; width: 100%; border-radius: 4px; }
+        td input[type="number"] { width: 72px; }
+
+        /* Buttons */
+        button { font-family: inherit; cursor: pointer; border: none; transition: background .15s, color .15s, border-color .15s; }
+
+        .btn-primary {
+            background: #18181b; color: #fff;
+            padding: 7px 14px; border-radius: 6px; font-size: 13px;
+        }
+        .btn-primary:hover { background: #3f3f46; }
+
+        .btn-ghost {
+            background: none; color: #52525b;
+            padding: 4px 10px; border: 1px solid #e4e4e7; border-radius: 5px; font-size: 12px;
+        }
+        .btn-ghost:hover { color: #18181b; border-color: #a1a1aa; }
+
+        .btn-danger {
+            background: none; color: #ef4444;
+            padding: 4px 10px; border: 1px solid #fca5a5; border-radius: 5px; font-size: 12px;
+        }
+        .btn-danger:hover { background: #fef2f2; }
+
+        .actions { display: flex; gap: 6px; }
+
+        /* Inline form (departments) */
+        .form-inline { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+
+        /* Modal */
+        dialog {
+            border: none; border-radius: 10px; padding: 0; margin: auto;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.08), 0 20px 60px rgba(0,0,0,.15);
+            min-width: 380px;
+        }
+        dialog::backdrop { background: rgba(0,0,0,.25); backdrop-filter: blur(2px); }
+
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 24px 0;
+        }
+        .modal-header h3 { font-size: 15px; font-weight: 600; color: #18181b; }
+        .modal-close {
+            background: none; border: none; color: #a1a1aa;
+            cursor: pointer; font-size: 18px; line-height: 1; padding: 0;
+        }
+        .modal-close:hover { color: #18181b; }
+
+        dialog form {
+            display: flex; flex-direction: column; gap: 14px;
+            padding: 20px 24px;
+        }
+        dialog form label {
+            display: flex; flex-direction: column; gap: 5px;
+            font-size: 11px; font-weight: 500;
+            text-transform: uppercase; letter-spacing: .04em; color: #71717a;
+        }
+        dialog form label input, dialog form label select { font-size: 14px; width: 100%; }
+
+        .modal-actions {
+            display: flex; justify-content: flex-end; gap: 8px;
+            padding-top: 12px; border-top: 1px solid #f4f4f5; margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Employees</h1>
+    </header>
+    {{template "content" .}}
+</div>
+</body>
+</html>

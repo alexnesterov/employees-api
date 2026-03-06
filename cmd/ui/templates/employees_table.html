@@ -1,0 +1,71 @@
+{{define "employees-table"}}
+<table id="employees-table">
+    <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Пол</th>
+            <th>Возраст</th>
+            <th>Зарплата</th>
+            <th>Отдел</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Employees}}
+        <tr id="employee-row-{{.ID}}">
+            <td>{{.Name}}</td>
+            <td>{{.Sex}}</td>
+            <td>{{.Age}}</td>
+            <td>{{.Salary}}</td>
+            <td>{{if .DepartmentCode}}{{index $.DeptByCode (deref .DepartmentCode)}}{{end}}</td>
+            <td class="actions">
+                <button class="btn-ghost"
+                        hx-get="/employees/{{.ID}}/edit"
+                        hx-target="#employee-row-{{.ID}}"
+                        hx-swap="outerHTML">Изменить</button>
+                <button class="btn-danger"
+                        hx-delete="/employees/{{.ID}}"
+                        hx-target="#employees-table"
+                        hx-swap="outerHTML"
+                        hx-confirm="Удалить сотрудника?">Удалить</button>
+            </td>
+        </tr>
+        {{else}}
+        <tr class="empty-row"><td colspan="6">Нет сотрудников</td></tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}
+
+{{define "employee-edit-row"}}
+<tr id="employee-row-{{.Employee.ID}}">
+    <td><input name="name" type="text" value="{{.Employee.Name}}"></td>
+    <td>
+        <select name="sex">
+            <option value="male" {{if eq .Employee.Sex "male"}}selected{{end}}>Мужской</option>
+            <option value="female" {{if eq .Employee.Sex "female"}}selected{{end}}>Женский</option>
+        </select>
+    </td>
+    <td><input name="age" type="number" value="{{.Employee.Age}}"></td>
+    <td><input name="salary" type="number" value="{{.Employee.Salary}}"></td>
+    <td>
+        <select name="department_code">
+            <option value="">— нет —</option>
+            {{range .Departments}}
+            <option value="{{.Code}}" {{if eq .Code (deref $.Employee.DepartmentCode)}}selected{{end}}>{{.Name}}</option>
+            {{end}}
+        </select>
+    </td>
+    <td class="actions">
+        <button class="btn-primary"
+                hx-put="/employees/{{.Employee.ID}}"
+                hx-include="closest tr"
+                hx-target="#employees-table"
+                hx-swap="outerHTML">Сохранить</button>
+        <button class="btn-ghost"
+                hx-get="/employees/table"
+                hx-target="#employees-table"
+                hx-swap="outerHTML">Отмена</button>
+    </td>
+</tr>
+{{end}}
