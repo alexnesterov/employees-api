@@ -1,0 +1,98 @@
+meta {
+  name: Create Department
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}/departments
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "code": "IT",
+    "name": "Information Technology"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+example {
+  name: Success
+
+  request: {
+    url: {{url}}/departments
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "code": "IT",
+        "name": "Information Technology"
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      content-type: application/json
+      date: Thu, 06 Mar 2026 00:00:00 GMT
+      content-length: 80
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "Department created successfully",
+          "data": {
+            "code": "IT",
+            "name": "Information Technology"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Failed - No Body
+
+  request: {
+    url: {{url}}/departments
+    method: POST
+    mode: none
+  }
+
+  response: {
+    headers: {
+      content-type: application/json
+      date: Thu, 06 Mar 2026 00:00:00 GMT
+      content-length: 49
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "error": "Invalid request body",
+          "details": "EOF"
+        }
+      '''
+    }
+  }
+}
