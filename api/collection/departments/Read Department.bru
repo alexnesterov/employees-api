@@ -1,0 +1,94 @@
+meta {
+  name: Read Department
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{url}}/departments/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: IT
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+example {
+  name: Success
+  
+  request: {
+    url: {{url}}/departments/:id
+    method: GET
+    mode: none
+    params:path: {
+      id: IT
+    }
+  }
+  
+  response: {
+    headers: {
+      content-type: application/json
+      date: Thu, 06 Mar 2026 00:00:00 GMT
+      content-length: 80
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "Department retrieved successfully",
+          "data": {
+            "code": "IT",
+            "name": "Information Technology"
+          }
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 404 Not Found
+  
+  request: {
+    url: {{url}}/departments/:id
+    method: GET
+    mode: none
+    params:path: {
+      id: IT
+    }
+  }
+  
+  response: {
+    headers: {
+      content-type: application/json
+      date: Thu, 06 Mar 2026 00:00:00 GMT
+      content-length: 34
+    }
+  
+    status: {
+      code: 404
+      text: Not Found
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "error": "Department not found"
+        }
+      '''
+    }
+  }
+}

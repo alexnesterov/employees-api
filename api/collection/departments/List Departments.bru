@@ -1,0 +1,15 @@
+meta {
+  name: List Departments
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{url}}/departments
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
