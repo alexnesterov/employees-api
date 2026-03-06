@@ -1,0 +1,28 @@
+{{define "departments-table"}}
+<table id="departments-table">
+    <thead>
+        <tr>
+            <th>Код</th>
+            <th>Название</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Departments}}
+        <tr>
+            <td>{{.Code}}</td>
+            <td>{{.Name}}</td>
+            <td class="actions">
+                <button class="btn-danger"
+                        hx-delete="/departments/{{.Code}}"
+                        hx-target="#departments-table"
+                        hx-swap="outerHTML"
+                        hx-confirm="Удалить отдел?">Удалить</button>
+            </td>
+        </tr>
+        {{else}}
+        <tr class="empty-row"><td colspan="3">Нет отделов</td></tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}
