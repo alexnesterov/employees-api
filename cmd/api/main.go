@@ -46,8 +46,8 @@ func main() {
 	mux.HandleFunc("PUT /employees/{id}", employeeHandler.UpdateEmployee)
 	mux.HandleFunc("DELETE /employees/{id}", employeeHandler.DeleteEmployee)
 
-	departmentRepo := repository.NewDepartmentPgRepo(pool)
-	departmentService := department.NewDepartmentService(departmentRepo)
+	departmentRepository := repository.NewPgDepartmentRepository(pool)
+	departmentService := department.NewDepartmentService(departmentRepository)
 	departmentHandler := handler.NewDepartmentHandler(departmentService)
 
 	mux.HandleFunc("POST /departments", departmentHandler.CreateDepartment)

@@ -12,7 +12,7 @@ type departmentPgRepo struct {
 	db *pgxpool.Pool
 }
 
-func NewDepartmentPgRepo(db *pgxpool.Pool) model.DepartmentRepository {
+func NewPgDepartmentRepository(db *pgxpool.Pool) model.DepartmentRepository {
 	return &departmentPgRepo{
 		db: db,
 	}
